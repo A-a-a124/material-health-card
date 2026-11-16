@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Material Health Card</title>
+<style>
+:root{--paper:#f5f1e8;--card:#fffdf8;--ink:#1b2236;--mute:#6b7186;--line:#e2dccd;--accent:#2447d6;--good:#1f8a5b;--warn:#c47a09;--bad:#c2372f;--soft:#eee8da;--serif:"Palatino Linotype","Book Antiqua",Palatino,Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:16px 28px;border-bottom:1px solid var(--line)}
+.logo{width:38px;height:38px;border-radius:11px;background:var(--accent);display:grid;place-items:center;color:#fff;font-size:20px}
+h1{font-family:var(--serif);font-size:22px;margin:0;letter-spacing:.3px;font-weight:700}
+.tag{color:var(--mute);font-size:13px}
+.sample{margin-left:auto;font-size:12px;font-weight:600;color:var(--warn);border:1px solid var(--warn);border-radius:99px;padding:4px 12px;background:#fff8ea;white-space:nowrap}
+.wrap{display:grid;grid-template-columns:290px 1fr;gap:24px;padding:22px 28px;max-width:1280px;margin:auto}
+aside{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;align-self:start}
+aside input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;margin-bottom:8px}
+.pitem{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;font:inherit;color:inherit;padding:9px 10px;border-radius:10px;cursor:pointer}
+.pitem:hover{background:var(--soft)}.pitem.on{background:var(--ink);color:#fff}.pitem.on small{color:#c9cee0}
+.pitem small{display:block;color:var(--mute);font-size:12px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 32px;position:relative;box-shadow:0 10px 30px -18px rgba(27,34,54,.35)}
+.eyebrow{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);font-weight:700}
+h2{font-family:var(--serif);font-size:31px;font-weight:700;letter-spacing:.2px;margin:4px 190px 4px 0}
+.meta{color:var(--mute);font-size:13.5px;margin-right:190px}
+.meta b{color:var(--ink);font-weight:600}
+.stamp{position:absolute;top:26px;right:30px;transform:rotate(7deg);border:3px double currentColor;border-radius:12px;padding:8px 18px;font-family:var(--serif);font-weight:700;letter-spacing:3px;text-align:center;font-size:18px;transition:color .4s}
+.stamp small{display:block;font-family:"Segoe UI",system-ui,sans-serif;font-size:10.5px;letter-spacing:1.2px;font-weight:600;text-transform:uppercase}
+.ages{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:22px;margin:26px 0 8px;align-items:center}
+.dial{text-align:center}
+.dial svg{width:150px;height:150px;transform:rotate(-90deg)}
+.dial circle{fill:none;stroke-width:11;stroke-linecap:round}
+.dial .bg{stroke:var(--soft)}.dial .fg{transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1),stroke .4s}
+.dial .num{margin-top:-110px;height:110px;font-family:var(--serif);font-size:22px;font-weight:700;line-height:1.55;font-variant-numeric:lining-nums}
+.dial .num small{display:block;font-family:"Segoe UI",system-ui,sans-serif;font-size:11.5px;color:var(--mute);font-weight:500;letter-spacing:.2px}
+.dial .lab{font-size:13px;font-weight:600;margin-top:2px}.dial .lab span{display:block;color:var(--mute);font-weight:400;font-size:12px}
+.say{font-size:17px;line-height:1.55}.say b{color:var(--accent);font-family:var(--serif);font-size:19px;font-variant-numeric:lining-nums}
+.lifebar{height:12px;border-radius:99px;background:var(--soft);overflow:hidden;margin:14px 0 4px}
+.lifebar i{display:block;height:100%;border-radius:99px;transition:width 1s cubic-bezier(.2,.8,.2,1),background .4s}
+h3{font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute);margin:26px 0 10px}
+.hint{margin:-4px 0 10px;color:var(--mute);font-size:13.5px}
+.tl{display:flex;gap:3px;height:84px}
+.seg{border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;min-width:58px;overflow:hidden;white-space:nowrap;animation:grow .7s both;transform-origin:left;line-height:1.1}
+.seg b{font-family:var(--serif);font-size:34px;font-weight:700;letter-spacing:.5px;font-variant-numeric:lining-nums}.seg b i{font-style:normal;font-weight:400;font-size:22px;margin-left:2px;opacity:.85}
+.seg span{font-size:11px;font-weight:600;letter-spacing:2.2px;text-transform:uppercase;opacity:.92;margin-top:3px}
+.seg.still{animation:none}.seg.fut{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.3) 0 8px,transparent 8px 16px);outline:2px dashed var(--ink);outline-offset:-2px}
+@keyframes grow{from{transform:scaleX(0)}}
+.tlk{display:flex;gap:3px;margin-top:10px}.tlk div{font-size:13.5px;color:var(--mute);min-width:58px}.tlk b{display:block;color:var(--ink);font-family:var(--serif);font-size:18px;margin-bottom:1px}.tlk em{display:block;font-style:normal;color:var(--ink);font-weight:600}
+.z-ac{background:#2f5f86}.z-wh{background:#4f6f59}.z-shade{background:#9a6d1f}.z-yard{background:#9b3a26}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.row:last-child{border:0}.row .s{margin-left:auto;font-size:12.5px;font-weight:600;white-space:nowrap}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:10px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:none;color:var(--ink)}.btn.sm{padding:4px 10px;font-size:12.5px;border-radius:8px}
+.btn:hover{opacity:.88}
+.hbtn{padding:6px 14px;font-size:13px}
+.fc{background:var(--soft);border-radius:14px;padding:14px 16px;font-size:14px}
+.fc p{margin:0 0 8px}.fc b{font-family:var(--serif);font-size:17px;font-variant-numeric:lining-nums}
+.ahead{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px dashed #d6cfbd;font-weight:600}
+.ahead input{flex:1;accent-color:var(--accent);cursor:pointer}.ahead span{min-width:74px;text-align:right;color:var(--accent)}
+.fc .ahcap{margin:6px 0 0;font-size:13.5px;color:var(--mute)}.fc .ahcap b{font-size:15px;color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:99px;padding:3px 8px;font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}.chip .dot{width:8px;height:8px}
+.stamp.pop{animation:pop .45s}@keyframes pop{0%{transform:rotate(7deg) scale(1.35)}100%{transform:rotate(7deg) scale(1)}}
+.foot{display:flex;gap:14px;align-items:center;margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.note{color:var(--mute);font-size:12.5px}
+.sign{display:none}
+footer{text-align:center;color:var(--mute);font-size:12.5px;padding:6px 0 26px}
+@media(max-width:900px){header{flex-wrap:wrap;padding:14px 16px}.sample{margin-left:0}#list{max-height:176px;overflow:auto}.card{padding:20px 18px}.wrap{grid-template-columns:1fr;padding:16px}.ages,.two{grid-template-columns:1fr}.stamp{position:static;display:inline-block;margin-top:12px}h2,.meta{margin-right:0}.foot{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+ body{background:#fff}aside,.btn,footer,.ahead,.ahcap{display:none!important}
+ .wrap{display:block;padding:0}.card{border:2px solid var(--ink);box-shadow:none}
+ header{border:0;padding:0 0 12px}h1::after{content:" · Handover Certificate"}
+ .sign{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:46px}
+ .sign div{border-top:1px solid var(--ink);padding-top:6px;font-size:12.5px}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">&#9829;</div>
+  <div><h1>Material Health Card</h1><div class="tag">Every warehouse knows what it holds. This one also knows how much life each part has left.</div></div>
+  <div class="sample">Sample data · concept demo</div>
+  <button class="btn hbtn" id="xl">Export register · Excel</button>
+</header>
+<div class="wrap">
+  <aside><input id="q" placeholder="Search by name or number…" aria-label="Search by name or number"><div class="chips" id="chips"></div><div id="list"></div></aside>
+  <main class="card" id="card"></main>
+</div>
+<footer>Runs fully offline · no data leaves this computer · Designed by Abdullah Aladhyani</footer>
+<script>
+// ---- sample model: storage zones, material families, parts ----
+const ZONES={ac:{name:'Air-conditioned store',T:22,RH:40},wh:{name:'Covered warehouse',T:31,RH:50},shade:{name:'Shaded yard',T:35,RH:58},yard:{name:'Open yard',T:37,RH:60,sun:true}};
+// life = shelf life in months at 25°C; q = speed-up per +10°C; hs/ss = humidity and sunlight sensitivity
+const FAM={elastomer:{name:'Rubber seal',life:60,q:2,hs:.3,ss:.5},gasket:{name:'Gasket',life:72,q:1.8,hs:.3,ss:.3},grease:{name:'Greased bearing',life:36,q:2,hs:.4,ss:.1},
+ motor:{name:'Electric motor',life:120,q:1.5,hs:.6,ss:.2},belt:{name:'Rubber belt',life:72,q:2,hs:.2,ss:.6},card:{name:'Electronic card',life:120,q:1.5,hs:.8,ss:0},
+ valve:{name:'Valve assembly',life:180,q:1.2,hs:.7,ss:.2},hose:{name:'Hydraulic hose',life:48,q:2,hs:.2,ss:.6},lube:{name:'Lubricant',life:60,q:1.8,hs:.2,ss:.3},paint:{name:'Coating',life:24,q:1.8,hs:.1,ss:.3}};
+// stay = [zone, months], oldest first. care = [task, every N months, last done N months ago]
+const PARTS=[
+ {id:'1000950001',name:'Mech seal P-101A',fam:'elastomer',client:'Aramco · Yanbu Refinery',loc:'WH-02 · D27-03-1',stay:[['yard',8],['wh',18]],care:[['Keep in a sealed bag, away from light',12,5]]},
+ {id:'1000950009',name:'Dry gas seal K-201',fam:'elastomer',client:'Aramco · Yanbu Refinery',loc:'AC-01 · B04-02-3',stay:[['ac',14]],care:[['Check the packaging and desiccant',6,2]]},
+ {id:'1000950023',name:'Turbine governor valve G-401',fam:'valve',client:'Aramco · Yanbu Refinery',loc:'Yard C · bay 12',stay:[['shade',40]],care:[['Renew the rust-preventive coating',12,19],['Check the end caps and covers',6,4]]},
+ {id:'1000960004',name:'Motor 75 kW, 4-pole',fam:'motor',client:'Client B · Industrial City',loc:'WH-03 · floor F2',stay:[['wh',30]],care:[['Rotate the shaft by hand',3,7],['Measure the winding insulation',12,10]]},
+ {id:'1000960011',name:'Bearing 6310 C3',fam:'grease',client:'Aramco · Yanbu Refinery',loc:'WH-01 · A11-05-2',stay:[['wh',20]],care:[['Keep flat in its original wrapping',12,6]]},
+ {id:'1000960017',name:'Spiral wound gasket 4" 300#',fam:'gasket',client:'Client C · Industrial City',loc:'AC-01 · C02-01-1',stay:[['ac',50]],care:[['Store flat; do not hang',12,8]]},
+ {id:'1000960022',name:'V-belt set SPB 2500',fam:'belt',client:'Client B · Industrial City',loc:'Yard A · rack 3',stay:[['yard',30]],care:[['Move out of direct sunlight',6,30]]},
+ {id:'1000960030',name:'DCS I/O card',fam:'card',client:'Aramco · Yanbu Refinery',loc:'AC-02 · E01-04-2',stay:[['ac',36]],care:[['Replace the desiccant in the anti-static bag',12,14]]},
+ {id:'1000960036',name:'Hydraulic hose 1" x 6 m',fam:'hose',client:'Client C · Industrial City',loc:'Yard A · rack 7',stay:[['yard',18]],care:[['Cap both ends',12,3]]},
+ {id:'1000960041',name:'Bearing grease, 180 kg drum',fam:'lube',client:'Aramco · Yanbu Refinery',loc:'Yard B · shade 2',stay:[['shade',22]],care:[['Store the drum on its side',12,9]]},
+ {id:'1000960048',name:'O-ring kit, Viton',fam:'elastomer',client:'Aramco · Yanbu Refinery',loc:'AC-01 · B07-03-4',stay:[['yard',12],['ac',36]],care:[['Keep in a sealed bag, away from light',12,4]]},
+ {id:'1000960055',name:'Epoxy coating, 2-part',fam:'paint',client:'Client B · Industrial City',loc:'WH-02 · P01-02-1',stay:[['wh',14]],care:[['Keep the lids sealed',6,2]]}];
+
+// how many times faster a family ages in a zone than at 25°C and 50% humidity
+const rate=(f,z)=>Math.pow(f.q,(z.T-25)/10)*(1+f.hs*Math.max(0,z.RH-50)/50)*(z.sun?1+f.ss:1);
+function assess(p,st){
+  st=st||{}; const f=FAM[p.fam], ah=st.ahead||0; let paper=0,real=0;
+  const here=st.moved?'ac':p.stay[p.stay.length-1][0];
+  // a look-ahead adds one future stay in the place the part is in now
+  const stays=ah?p.stay.concat([[here,ah,true]]):p.stay;
+  const segs=stays.map(([z,m,fut])=>{const r=rate(f,ZONES[z]);paper+=m;real+=m*r;return{z,m,r,fut}});
+  const care=p.care.map(([t,every,last],i)=>{const l=(st.done&&st.done[i]?0:last)+ah;return{t,every,last:l,over:l>every}});
+  const used=real/f.life*100;
+  const left=Math.max(0,(f.life-real)/rate(f,ZONES[here])), leftAc=Math.max(0,(f.life-real)/rate(f,ZONES.ac));
+  const over=care.some(c=>c.over);
+  const v=used>=100?{k:'bad',t:'HOLD',s:'inspect before issue'}:used>=75||over?{k:'warn',t:'CARE NEEDED',s:over?'care task overdue':'nearing end of shelf life'}:{k:'good',t:'FIT TO ISSUE',s:'stored as required'};
+  return{f,paper,real,segs,care,used,here,left,leftAc,v};
+}
+const COL={good:'var(--good)',warn:'var(--warn)',bad:'var(--bad)'};
+const ym=m=>{m=Math.round(m);const y=Math.floor(m/12),r=m%12;return ((y?y+' yr ':'')+(r||!y?r+' mo':'')).trim()};
+const when=m=>{const d=new Date();d.setMonth(d.getMonth()+Math.round(m));return d.toLocaleDateString('en-GB',{month:'short',year:'numeric'})};
+const ago=m=>{const d=new Date();d.setMonth(d.getMonth()-m);return d.toLocaleDateString('en-GB',{month:'short',year:'numeric'})};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nice=t=>t[0]+t.slice(1).toLowerCase();
+const $=id=>document.getElementById(id);
+const CIRC=2*Math.PI*62;
+let cur=PARTS[0].id, filt='all'; const state={};
+// the list and the counters always show today, never a look-ahead
+const today=p=>assess(p,Object.assign({},state[p.id],{ahead:0}));
+
+function dial(id,label,sub){
+  return `<div class="dial"><svg viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="62"/><circle class="fg" id="${id}r" cx="75" cy="75" r="62" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC}"/></svg>
+  <div class="num"><div style="padding-top:8px"><span id="${id}n"></span><small id="${id}s"></small></div></div><div class="lab">${label}<span>${sub}</span></div></div>`;
+}
+function renderList(){
+  const q=$('q').value.toLowerCase(), all=PARTS.map(p=>({p,a:today(p)}));
+  const n=k=>all.filter(x=>x.a.v.k===k).length;
+  $('chips').innerHTML=[['all','All',all.length],['good','Fit',n('good')],['warn','Care',n('warn')],['bad','Hold',n('bad')]]
+    .map(([k,t,c])=>`<button class="chip ${filt===k?'on':''}" data-f="${k}">${k==='all'?'':`<span class="dot" style="background:${COL[k]}"></span>`}${t} <b>${c}</b></button>`).join('');
+  $('list').innerHTML=all.filter(x=>(filt==='all'||x.a.v.k===filt)&&(x.p.name+x.p.id).toLowerCase().includes(q)).map(({p,a})=>
+    `<button class="pitem ${p.id===cur?'on':''}" data-id="${p.id}"><span class="dot" style="background:${COL[a.v.k]}"></span><span>${esc(p.name)}<small>${p.id} · ${nice(a.v.t)}</small></span></button>`).join('')||'<div class="note" style="padding:10px">No matching part.</div>';
+}
+function renderCard(){
+  const p=PARTS.find(x=>x.id===cur), st=state[p.id]=state[p.id]||{done:{}}, b=today(p), zoneNow=ZONES[b.here].name;
+  $('card').innerHTML=`
+  <div class="eyebrow">Material health card</div>
+  <h2>${esc(p.name)}</h2>
+  <div class="meta">SAP <b>${p.id}</b> · ${b.f.name} · Owner: <b>${esc(p.client)}</b> · Location: <b>${esc(st.moved?'AC-01 (simulated move)':p.loc)}</b></div>
+  <div class="stamp" id="stamp"></div>
+  <div class="ages">
+    ${dial('d0','Calendar age','time since receipt')}
+    ${dial('d1','Real age','adjusted for storage conditions')}
+    <div><div class="say" id="say"></div>
+      <div class="lifebar"><i id="bar" style="width:0"></i></div>
+      <div class="note" id="pct"></div></div>
+  </div>
+  <h3>Storage history</h3>
+  <p class="hint">Each block is a place where the part was stored. The figure shows how many times faster it aged there than in ideal storage (1.0×).</p>
+  <div class="tl" id="tl"></div>
+  <div class="tlk" id="tlk"></div>
+  <div class="two">
+    <div><h3>Care record</h3><div id="care"></div></div>
+    <div><h3>Outlook</h3><div class="fc">
+      ${b.used>=100?`<p>This part is past its shelf life. <b>Inspect or test it before issuing it to the plant.</b></p>`
+       :`<p>If it stays in the <b>${zoneNow.toLowerCase()}</b>, it will reach the end of its shelf life in <b>${ym(b.left)}</b> (${when(b.left)}).</p>
+         ${b.here!=='ac'?`<p>In the air-conditioned store it would last <b>${ym(b.leftAc)}</b> (${when(b.leftAc)}), which is <b>${ym(b.leftAc-b.left)}</b> longer.</p>`:st.moved?'':`<p>It is already in the best storage available. No move is needed.</p>`}`}
+      ${b.used<100&&(b.here!=='ac'||st.moved)?`<button class="btn sm ghost" id="mv">${st.moved?'Undo the move':'Simulate the move'}</button>`:''}
+      <div class="ahead"><label for="ah">Look ahead</label><input type="range" id="ah" min="0" max="36" step="1" value="${st.ahead||0}"><span id="ahv"></span></div>
+      <p class="ahcap" id="ahcap"></p></div></div>
+  </div>
+  <div class="foot"><button class="btn" id="pdf">Download PDF certificate</button>
+    <span class="note">Real age is a simplified estimate. For this type of material, every 10°C above 25°C makes it age about ${b.f.q} times faster, with allowances for humidity and sunlight. Simulations on this page change nothing in any system.</span></div>
+  <div class="sign"><div>Issued by: Materials Services Warehouse · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}<br>Certificate no. MHC-${p.id}-${new Date().toISOString().slice(0,10).replace(/-/g,'')}</div><div>Received by: name and signature</div></div>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>paint()));
+}
+// update everything that depends on the look-ahead without rebuilding the slider
+function paint(quiet){
+  const p=PARTS.find(x=>x.id===cur), st=state[p.id], ah=st.ahead||0, a=assess(p,st), c=COL[a.v.k];
+  const stamp=$('stamp'), was=stamp.dataset.k;
+  stamp.style.color=c; stamp.innerHTML=`${a.v.t}<small>${ah?'in '+ym(ah)+' · simulated':a.v.s}</small>`;
+  if(was&&was!==a.v.k){stamp.classList.remove('pop');void stamp.offsetWidth;stamp.classList.add('pop')} stamp.dataset.k=a.v.k;
+  [['d0',a.paper,'var(--mute)'],['d1',a.real,c]].forEach(([id,m,col])=>{
+    $(id+'r').style.stroke=col; $(id+'r').style.strokeDashoffset=CIRC*(1-Math.min(1,m/a.f.life));
+    $(id+'n').textContent=ym(m); $(id+'s').textContent='of '+ym(a.f.life)+' shelf life'});
+  const ratio=a.real/a.paper;
+  $('say').innerHTML=ah?`In ${ym(ah)}, this part will be <b>${ym(a.paper)}</b> old by the calendar and <b>${ym(a.real)}</b> old in real terms.`
+    :ratio>1.25?`By the calendar, this part is <b>${ym(a.paper)}</b> old. The heat and humidity it was stored in have aged it to the equivalent of <b>${ym(a.real)}</b>.`
+    :ratio<0.9?`By the calendar, this part is <b>${ym(a.paper)}</b> old. Good storage has kept its real age down to <b>${ym(a.real)}</b>.`
+    :`This part is <b>${ym(a.paper)}</b> old, and its real age is about the same. It has been stored as required.`;
+  $('bar').style.width=Math.min(100,a.used)+'%'; $('bar').style.background=c;
+  $('pct').innerHTML=`<b style="color:${c}">${Math.round(a.used)}%</b> of its shelf life used${a.used>=100?' · beyond the limit':''}`;
+  let start=a.paper-ah;
+  $('tl').innerHTML=a.segs.map(s=>`<div class="seg z-${s.z} ${s.fut?'fut':''} ${quiet?'still':''}" style="flex:${s.m}" title="${ZONES[s.z].name}: ${s.m} months at about ${ZONES[s.z].T}°C, ageing ${s.r.toFixed(1)} times faster than ideal storage"><b>${s.r.toFixed(1)}<i>×</i></b><span>${s.fut?'projected':'ageing rate'}</span></div>`).join('');
+  $('tlk').innerHTML=a.segs.map(s=>{if(s.fut)return `<div style="flex:${s.m}"></div>`;const from=ago(start);start-=s.m;
+    return `<div style="flex:${s.m}"><b>${ZONES[s.z].name}</b>${s.m} months from ${from} · about ${ZONES[s.z].T}°C<em>Counts as ${ym(s.m*s.r)} of ageing</em></div>`}).join('');
+  $('care').innerHTML=a.care.map((k,i)=>`<div class="row"><span class="dot" style="background:${k.over?'var(--bad)':'var(--good)'}"></span><span>${esc(k.t)}<br><span class="note">Due every ${k.every} months · last done ${k.last?k.last+' months ago':'today (simulated)'}</span></span>
+    <span class="s" style="color:${k.over?'var(--bad)':'var(--good)'}">${k.over?`Overdue${ah?'':` <button class="btn sm ghost" data-care="${i}">Mark as done</button>`}`:'Up to date'}</span></div>`).join('');
+  $('ahv').textContent=ah?'+'+ym(ah):'today';
+  $('ahcap').innerHTML=ah?`By <b>${when(ah)}</b>: real age <b>${ym(a.real)}</b>, <b>${Math.round(a.used)}%</b> of shelf life used. Verdict: <b style="color:${c}">${nice(a.v.t)}</b>.`
+    :'Drag the slider to see this part in the future, if nothing changes.';
+}
+// ---- real file exports, built in the browser with no libraries: a vector PDF certificate and an .xlsx register ----
+const enc=new TextEncoder();
+const stampNo=()=>new Date().toISOString().slice(0,10).replace(/-/g,'');
+function save(blob,name){const u=URL.createObjectURL(blob),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}
+
+// PDF: A4, top-left coordinates, the four standard fonts (Arial and Times New Roman share their metrics, so the canvas measures them)
+function pdfDoc(){
+  const H=842, ops=[], ctx=document.createElement('canvas').getContext('2d');
+  const FN={R:'F1',B:'F2',S:'F3',SB:'F4'}, CSS={R:'1000px Arial',B:'bold 1000px Arial',S:'1000px "Times New Roman"',SB:'bold 1000px "Times New Roman"'};
+  const MAP={'×':0xD7,'°':0xB0,'·':0xB7,'—':0x97,'–':0x96,'’':0x92,'…':0x85};
+  const pe=t=>[...String(t)].map(ch=>{let c=MAP[ch]||ch.charCodeAt(0);if(c>255)c=63;const s=String.fromCharCode(c);return s==='('||s===')'||s==='\\'?'\\'+s:s}).join('');
+  const rgb=h=>[1,3,5].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(' ');
+  const n=v=>(+v).toFixed(2);
+  const W=(t,f,s,cs)=>{ctx.font=CSS[f];return ctx.measureText(t).width*s/1000+(cs||0)*Math.max(0,[...t].length-1)};
+  const bez=(cx,cy,r,a1,a2)=>{const k=4/3*Math.tan((a2-a1)/4),p=a=>[cx+r*Math.sin(a),cy+r*Math.cos(a)],d=a=>[Math.cos(a),-Math.sin(a)];
+    const [x0,y0]=p(a1),[x3,y3]=p(a2),[dx0,dy0]=d(a1),[dx3,dy3]=d(a2);return `${n(x0+k*r*dx0)} ${n(y0+k*r*dy0)} ${n(x3-k*r*dx3)} ${n(y3-k*r*dy3)} ${n(x3)} ${n(y3)} c`};
+  const D={W,H,
+    text(t,x,y,f,s,col,al,cs){if(al==='c')x-=W(t,f,s,cs)/2;else if(al==='r')x-=W(t,f,s,cs);ops.push(`BT /${FN[f]} ${s} Tf ${cs||0} Tc ${rgb(col)} rg ${n(x)} ${n(H-y)} Td (${pe(t)}) Tj ET`)},
+    rect(x,y,w,h,fill,stroke,lw){ops.push(`${fill?rgb(fill)+' rg ':''}${stroke?rgb(stroke)+' RG '+(lw||1)+' w ':''}${n(x)} ${n(H-y-h)} ${n(w)} ${n(h)} re ${fill&&stroke?'B':fill?'f':'S'}`)},
+    rrect(x,y,w,h,r,fill){const k=.5523*r,X=x,Y=H-y-h,R=x+w,T=H-y;ops.push(`${rgb(fill)} rg ${n(X+r)} ${n(Y)} m ${n(R-r)} ${n(Y)} l ${n(R-r+k)} ${n(Y)} ${n(R)} ${n(Y+r-k)} ${n(R)} ${n(Y+r)} c ${n(R)} ${n(T-r)} l ${n(R)} ${n(T-r+k)} ${n(R-r+k)} ${n(T)} ${n(R-r)} ${n(T)} c ${n(X+r)} ${n(T)} l ${n(X+r-k)} ${n(T)} ${n(X)} ${n(T-r+k)} ${n(X)} ${n(T-r)} c ${n(X)} ${n(Y+r)} l ${n(X)} ${n(Y+r-k)} ${n(X+r-k)} ${n(Y)} ${n(X+r)} ${n(Y)} c f`)},
+    line(x1,y1,x2,y2,col,lw){ops.push(`${rgb(col)} RG ${lw} w ${n(x1)} ${n(H-y1)} m ${n(x2)} ${n(H-y2)} l S`)},
+    // arc in degrees, clockwise from 12 o'clock, drawn with round caps
+    arc(cx,cy,r,deg,col,lw){if(deg<=0)return;const a=Math.min(deg,359.99)*Math.PI/180,seg=Math.ceil(a/(Math.PI/2)),Y=H-cy;let s=`${rgb(col)} RG ${lw} w 1 J ${n(cx)} ${n(Y+r)} m`;
+      for(let i=0;i<seg;i++)s+=' '+bez(cx,Y,r,a*i/seg,a*(i+1)/seg);ops.push(s+' S 0 J')},
+    dot(cx,cy,r,col){const Y=H-cy;let s=`${rgb(col)} rg ${n(cx)} ${n(Y+r)} m`;for(let i=0;i<4;i++)s+=' '+bez(cx,Y,r,i*Math.PI/2,(i+1)*Math.PI/2);ops.push(s+' f')},
+    // word-wrapped text from [text, font, colour] runs; returns the height used (dry=true only measures)
+    rich(runs,x,y,s,maxW,lead,dry){const words=[];runs.forEach(([t,f,col])=>String(t).split(/(\s+)/).forEach(w=>w&&words.push([w,f,col])));
+      let cx=0,line=0;const out=[];words.forEach(([w,f,col])=>{const ww=W(w,f,s);if(/^\s+$/.test(w)){if(cx>0)cx+=ww;return}
+        if(cx>0&&cx+ww>maxW){line++;cx=0}out.push([w,f,col,cx,line]);cx+=ww});
+      if(!dry)out.forEach(([w,f,col,ox,l])=>this.text(w,x+ox,y+l*lead,f,s,col));return (line+1)*lead},
+    raw(s){ops.push(s)},
+    bytes(info){const body=ops.join('\n');const obj=[
+      '<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R /F3 7 0 R /F4 8 0 R >> >> /Contents 4 0 R >>',
+      `<< /Length ${body.length} >>\nstream\n${body}\nendstream`,
+      ...['Helvetica','Helvetica-Bold','Times-Roman','Times-Bold'].map(b=>`<< /Type /Font /Subtype /Type1 /BaseFont /${b} /Encoding /WinAnsiEncoding >>`),
+      `<< /Title (${pe(info.title)}) /Author (${pe(info.author)}) /Producer (Material Health Card) /CreationDate (D:${new Date().toISOString().replace(/[-:T]/g,'').slice(0,14)}) >>`];
+      let s='%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';const off=[];obj.forEach((o,i)=>{off.push(s.length);s+=`${i+1} 0 obj\n${o}\nendobj\n`});
+      const x=s.length;s+=`xref\n0 ${obj.length+1}\n0000000000 65535 f \n`+off.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<< /Size ${obj.length+1} /Root 1 0 R /Info 9 0 R >>\nstartxref\n${x}\n%%EOF`;
+      const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i)&255;return b}};
+  return D;
+}
+const HEX={good:'#1f8a5b',warn:'#c47a09',bad:'#c2372f'}, ZHEX={ac:'#2f5f86',wh:'#4f6f59',shade:'#9a6d1f',yard:'#9b3a26'};
+function pdfCertificate(p){
+  const st=state[p.id]||{done:{}}, a=today(p), D=pdfDoc(), M=48, R=547, c=HEX[a.v.k];
+  const ink='#1b2236',mute='#6b7186',acc='#2447d6',soft='#eee8da',line='#d6cfbd';
+  const ds=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}), no='MHC-'+p.id+'-'+stampNo();
+  const loc=st.moved?'AC-01 (simulated move)':p.loc;
+  D.rect(22,22,551,798,null,ink,1.1); D.rect(26.5,26.5,542,789,null,ink,.35);
+  D.text('MATERIALS SERVICES WAREHOUSE',M,60,'B',7.5,acc,'l',1.5);
+  D.text('Certificate no. '+no,R,60,'R',8,mute,'r');
+  D.text('Material Health Card',M,94,'SB',27,ink);
+  D.text('Handover certificate · issued '+ds,M,114,'S',12.5,mute);
+  D.line(M,128,R,128,ink,.8);
+  D.text(p.name,M,162,'SB',21,ink);
+  D.rich([['SAP ','R',mute],[p.id,'B',ink],[' · '+a.f.name+' · Owner: ','R',mute],[p.client,'B',ink],[' · Location: ','R',mute],[loc,'B',ink]],M,180,8.5,330,12);
+  // the verdict stamp, turned 7 degrees like a rubber stamp
+  const ang=-7*Math.PI/180,co=Math.cos(ang).toFixed(4),si=Math.sin(ang).toFixed(4),sw=Math.max(118,D.W(a.v.t,'SB',15,2.2)+34);
+  D.raw(`q ${co} ${si} ${(-si).toFixed(4)} ${co} 478 ${D.H-158} cm`);
+  const ox=-sw/2, oy=-23;   // after the shift below, helper (0,0) is the stamp's centre
+  D.raw(`1 0 0 1 0 ${-D.H} cm`);
+  D.rect(ox,oy-0,sw,46,null,c,2); D.rect(ox+3.5,oy+3.5,sw-7,39,null,c,.6);
+  D.text(a.v.t,0,oy+24,'SB',15,c,'c',2.2); D.text(a.v.s.toUpperCase(),0,oy+36,'B',6,c,'c',1);
+  D.raw('Q');
+  // calendar age and real age dials
+  [[110,'Calendar age','time since receipt',a.paper,'#8a8fa3'],[250,'Real age','adjusted for storage conditions',a.real,c]].forEach(([cx,lab,sub,m,col])=>{
+    const cy=262,r=44; D.arc(cx,cy,r,360,soft,7.5); D.arc(cx,cy,r,360*Math.min(1,m/a.f.life),col,7.5);
+    D.text(ym(m),cx,cy+3,'SB',15.5,ink,'c'); D.text('of '+ym(a.f.life)+' shelf life',cx,cy+15,'R',6.5,mute,'c');
+    D.text(lab,cx,cy+r+22,'B',9,ink,'c'); D.text(sub,cx,cy+r+33,'R',7.5,mute,'c')});
+  const ratio=a.real/a.paper, X=330, CW=R-X, B=(t)=>[t,'SB',acc];
+  const say=ratio>1.25?[['By the calendar, this part is ','R',ink],B(ym(a.paper)),[' old. The heat and humidity it was stored in have aged it to the equivalent of ','R',ink],B(ym(a.real)),['.','R',ink]]
+    :ratio<0.9?[['By the calendar, this part is ','R',ink],B(ym(a.paper)),[' old. Good storage has kept its real age down to ','R',ink],B(ym(a.real)),['.','R',ink]]
+    :[['This part is ','R',ink],B(ym(a.paper)),[' old, and its real age is about the same. It has been stored as required.','R',ink]];
+  let y=232+D.rich(say,X,232,11.5,CW,16)+2;
+  D.rrect(X,y,CW,6,3,soft); if(a.used>0)D.rrect(X,y,Math.max(6,CW*Math.min(1,a.used/100)),6,3,c);
+  D.rich([[Math.round(a.used)+'%','B',c],[' of its shelf life used'+(a.used>=100?' · beyond the limit':''),'R',mute]],X,y+20,8.5,CW,12);
+  // storage history blocks
+  D.text('STORAGE HISTORY',M,372,'B',7.5,mute,'l',1.4);
+  D.text('Each block is a place where the part was stored. The figure shows how many times faster it aged there than in ideal storage (1.0×).',M,386,'R',7.5,mute);
+  const gap=3, tot=a.segs.reduce((s,g)=>s+g.m,0), avail=R-M-gap*(a.segs.length-1); let bx=M, start=a.paper, maxH=0;
+  a.segs.forEach(g=>{const w=avail*g.m/tot, cx=bx+w/2, num=g.r.toFixed(1), wn=D.W(num,'SB',22), wx=D.W('×','S',13), sx=cx-(wn+wx+1)/2;
+    D.rect(bx,396,w,52,ZHEX[g.z]); D.text(num,sx,425,'SB',22,'#ffffff'); D.text('×',sx+wn+1,425,'S',13,'#ffffff');
+    D.text('AGEING RATE',cx,439,'B',5.8,'#ffffff','c',1.2);
+    const from=ago(start); start-=g.m; let ly=466;
+    ly+=D.rich([[ZONES[g.z].name,'SB',ink]],bx,ly,10.5,w-4,13);
+    ly+=D.rich([[g.m+' months from '+from+' · about '+ZONES[g.z].T+'°C','R',mute]],bx,ly,7.5,w-4,10);
+    ly+=D.rich([['Counts as '+ym(g.m*g.r)+' of ageing','B',ink]],bx,ly,7.5,w-4,10);
+    maxH=Math.max(maxH,ly); bx+=w+gap});
+  // care record and outlook
+  const top=Math.max(maxH+18,530);
+  D.text('CARE RECORD',M,top,'B',7.5,mute,'l',1.4); let cy=top+20;
+  a.care.forEach(k=>{const col=k.over?HEX.bad:HEX.good; D.dot(M+3,cy-3,3,col);
+    const h=D.rich([[k.t,'R',ink]],M+12,cy,9.5,180,12);
+    D.text('Due every '+k.every+' months · last done '+(k.last?k.last+' months ago':'today'),M+12,cy+h,'R',7.5,mute);
+    D.text(k.over?'Overdue':'Up to date',290,cy,'B',8,col,'r'); D.line(M,cy+h+9,290,cy+h+9,line,.5); cy+=h+24});
+  D.text('OUTLOOK',312,top,'B',7.5,mute,'l',1.4);
+  const zn=ZONES[a.here].name.toLowerCase(), OW=R-312-24, out=a.used>=100
+    ?[[['This part is past its shelf life. ','R',ink],['Inspect or test it before issuing it to the plant.','SB',ink]]]
+    :[[['If it stays in the ','R',ink],[zn,'B',ink],[', it will reach the end of its shelf life in ','R',ink],[ym(a.left),'SB',ink],[' ('+when(a.left)+').','R',ink]]]
+      .concat(a.here!=='ac'?[[['In the air-conditioned store it would last ','R',ink],[ym(a.leftAc),'SB',ink],[' ('+when(a.leftAc)+'), which is ','R',ink],[ym(a.leftAc-a.left),'SB',ink],[' longer.','R',ink]]]
+        :[[['It is already in the best storage available. No move is needed.','R',ink]]]);
+  const oh=out.reduce((s,r)=>s+D.rich(r,0,0,9.5,OW,13,true)+6,0);
+  D.rrect(312,top+8,R-312,oh+22,8,soft); let oy2=top+28; out.forEach(r=>{oy2+=D.rich(r,324,oy2,9.5,OW,13)+6});
+  // method note, signatures, footer
+  const ny=Math.max(cy,top+oh+40)+14;
+  D.rich([['Real age is a simplified estimate. For this type of material, every 10°C above 25°C makes it age about '+a.f.q+' times faster, with allowances for humidity and sunlight. All figures are sample data for a concept demonstration.','R',mute]],M,ny,7.5,R-M,10);
+  const sy=Math.max(ny+70,736);
+  D.line(M,sy,262,sy,ink,.6); D.line(333,sy,R,sy,ink,.6);
+  D.text('Issued by: Materials Services Warehouse',M,sy+13,'B',8,ink); D.text(ds,M,sy+24,'R',7.5,mute);
+  D.text('Received by: name and signature',333,sy+13,'B',8,ink); D.text('Date',333,sy+24,'R',7.5,mute);
+  D.text('Sample data · concept demo · Designed by Abdullah Aladhyani',297.5,803,'R',7,mute,'c');
+  return D.bytes({title:'Material Health Card · '+p.name,author:'Materials Services Warehouse'});
+}
+
+// XLSX: a plain zip (stored, no compression) of SpreadsheetML parts with inline strings
+const CRC=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[i]=c>>>0}return b=>{let c=~0;for(let i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return ~c>>>0}})();
+function zip(files){const u16=v=>[v&255,v>>>8&255],u32=v=>[v&255,v>>>8&255,v>>>16&255,v>>>24&255],parts=[],cd=[];let off=0;
+  files.forEach(([name,text])=>{const nm=enc.encode(name),d=enc.encode(text),c=CRC(d),z=d.length;
+    const h=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(z),...u32(z),...u16(nm.length),...u16(0)]);
+    cd.push(new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(z),...u32(z),...u16(nm.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nm);
+    parts.push(h,nm,d); off+=h.length+nm.length+z});
+  const cl=cd.reduce((s,b)=>s+b.length,0);
+  return new Blob([...parts,...cd,new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cl),...u32(off),...u16(0)])],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+const xe=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const col=i=>{let s='';i++;while(i){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=(i-m-1)/26}return s};
+const serial=d=>(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(1899,11,30))/864e5;
+const monthStart=m=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+Math.round(m));return d};
+// a cell is a value or [value, style]; styles: 1 header, 2 title, 3 note, 4 whole number, 5 percent, 6 month, 7 rate, 8 text, 9/10/11 verdict, 12 bold, 13 one decimal
+function sheet(rows,o){const cols=(o.widths||[]).map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');
+  const body=rows.map((r,ri)=>!r?'':`<row r="${ri+1}"${o.tall&&o.tall[ri+1]?` ht="${o.tall[ri+1]}" customHeight="1"`:''}>`+r.map((c,ci)=>{if(c==null||c==='')return '';const [v,s]=Array.isArray(c)?c:[c,0],ref=col(ci)+(ri+1),st=s?` s="${s}"`:'';
+    if(typeof v==='string'&&v[0]==='=')return `<c r="${ref}"${st}><f>${xe(v.slice(1))}</f></c>`;
+    return typeof v==='number'?`<c r="${ref}"${st}><v>${v}</v></c>`:`<c r="${ref}"${st} t="inlineStr"><is><t xml:space="preserve">${xe(v)}</t></is></c>`}).join('')+'</row>').join('');
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`+
+    `<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="0">${o.freeze?`<pane ySplit="${o.freeze}" topLeftCell="A${o.freeze+1}" activePane="bottomLeft" state="frozen"/>`:''}</sheetView></sheetViews>`+
+    `<sheetFormatPr defaultRowHeight="16"/>${cols?`<cols>${cols}</cols>`:''}<sheetData>${body}</sheetData>${o.filter?`<autoFilter ref="${o.filter}"/>`:''}`+
+    (o.merge?`<mergeCells count="${o.merge.length}">${o.merge.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells>`:'')+`<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`}
+function xlsxRegister(){
+  const now=new Date(), gen=now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}), VS={good:9,warn:10,bad:11};
+  const title=t=>[[t,2]], note=t=>[[t,3]];
+  // sheet 1: one row per part
+  const H1=['SAP number','Part','Material type','Owner','Location','Calendar age (months)','Real age (months)','Shelf life (months)','Shelf life used','Ageing vs ideal','Months left where it is','Shelf life ends','Overdue care tasks','Verdict'];
+  const r1=[title('Material Health Card · storage health register'),note('Sample data for a concept demonstration · generated '+gen+' · real age is a simplified estimate'),null,H1.map(h=>[h,1])];
+  PARTS.forEach(p=>{const a=today(p),st=state[p.id]||{};r1.push([[p.id,8],[p.name,12],[a.f.name,8],[p.client,8],[st.moved?'AC-01 (simulated move)':p.loc,8],
+    [Math.round(a.paper),4],[Math.round(a.real),4],[a.f.life,4],[+(a.used/100).toFixed(4),5],[+(a.real/a.paper).toFixed(2),7],
+    [a.used>=100?0:Math.round(a.left),4],[a.used>=100?'Already passed':serial(monthStart(a.left)),a.used>=100?8:6],[a.care.filter(k=>k.over).length,4],[nice(a.v.t),VS[a.v.k]]])});
+  const n=PARTS.length, last=4+n;
+  r1.push(null,[['Totals',12],'','','','','','','','','','','',[`=SUM(M5:M${last})`,4],[`Fit ${PARTS.filter(p=>today(p).v.k==='good').length} · Care ${PARTS.filter(p=>today(p).v.k==='warn').length} · Hold ${PARTS.filter(p=>today(p).v.k==='bad').length}`,12]]);
+  // sheet 2: every storage stay; sheet 3: every care task
+  const r2=[title('Storage history'),note('Each row is one place a part was stored, oldest first'),null,['SAP number','Part','Place','From','Months','Average temperature (°C)','Relative humidity (%)','Ageing rate','Ageing counted (months)'].map(h=>[h,1])];
+  PARTS.forEach(p=>{const a=today(p);let s=a.paper;a.segs.forEach(g=>{const z=ZONES[g.z];r2.push([[p.id,8],[p.name,12],[z.name,8],[serial(monthStart(-s)),6],[g.m,4],[z.T,4],[z.RH,4],[+g.r.toFixed(2),7],[+(g.m*g.r).toFixed(1),13]]);s-=g.m})});
+  const r3=[title('Care tasks'),note('Preservation tasks per part and whether they are on time'),null,['SAP number','Part','Task','Every (months)','Last done (months ago)','Status'].map(h=>[h,1])];
+  PARTS.forEach(p=>today(p).care.forEach(k=>r3.push([[p.id,8],[p.name,12],[k.t,8],[k.every,4],[k.last,4],[k.over?'Overdue':'Up to date',k.over?11:9]])));
+  // sheet 4: the assumptions behind the numbers
+  const r4=[title('Method and assumptions'),note('Real age = sum of months in each place × how much faster that place ages the material than 25°C and 50% humidity'),null,
+    ['Storage place','Average temperature (°C)','Relative humidity (%)','Direct sunlight'].map(h=>[h,1]),...Object.values(ZONES).map(z=>[[z.name,12],[z.T,4],[z.RH,4],[z.sun?'Yes':'No',8]]),null,
+    ['Material type','Shelf life at 25°C (months)','Speed-up per +10°C','Humidity sensitivity','Sunlight sensitivity'].map(h=>[h,1]),...Object.values(FAM).map(f=>[[f.name,12],[f.life,4],[f.q,13],[f.hs,13],[f.ss,13]]),null,
+    note('These are illustrative values for a demo. In practice the engineers set them per material.')];
+  const S=[['Health register',sheet(r1,{widths:[13,30,17,26,22,13,13,13,13,13,14,14,13,14],freeze:4,filter:`A4:N${last}`,tall:{1:24,4:48},merge:['A1:H1','A2:N2']})],
+    ['Storage history',sheet(r2,{widths:[13,30,24,12,10,15,15,12,15],freeze:4,filter:`A4:I${r2.length}`,tall:{1:24,4:48}})],
+    ['Care tasks',sheet(r3,{widths:[13,30,42,13,15,13],freeze:4,filter:`A4:F${r3.length}`,tall:{1:24,4:48}})],
+    ['Method',sheet(r4,{widths:[26,18,16,16,16],tall:{1:24,4:34,10:34}})]];
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<numFmts count="2"><numFmt numFmtId="164" formatCode="mmm yyyy"/><numFmt numFmtId="165" formatCode="0.0&quot;×&quot;"/></numFmts>
+<fonts count="5"><font><sz val="10.5"/><color rgb="FF1B2236"/><name val="Segoe UI"/></font><font><b/><sz val="10.5"/><color rgb="FFFFFFFF"/><name val="Segoe UI"/></font><font><b/><sz val="17"/><color rgb="FF1B2236"/><name val="Palatino Linotype"/></font><font><i/><sz val="9.5"/><color rgb="FF6B7186"/><name val="Segoe UI"/></font><font><b/><sz val="10.5"/><color rgb="FF1B2236"/><name val="Segoe UI"/></font></fonts>
+<fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1B2236"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDF0E5"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFBEBCD"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF6DAD6"/></patternFill></fill></fills>
+<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color rgb="FFDDD6C6"/></bottom><diagonal/></border></borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="14"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+<xf numFmtId="1" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>
+<xf numFmtId="9" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>
+<xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right"/></xf>
+<xf numFmtId="165" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>
+<xf numFmtId="0" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="4" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+<xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/>
+<xf numFmtId="2" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/></cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const files=[['[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${S.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>`],
+    ['_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>`],
+    ['docProps/core.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>Material Health Card register</dc:title><dc:creator>Materials Services Warehouse</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${now.toISOString().slice(0,19)}Z</dcterms:created></cp:coreProperties>`],
+    ['xl/workbook.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${S.map(([nm],i)=>`<sheet name="${nm}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets><definedNames>`+
+      [[0,`A4:N${last}`],[1,`A4:I${r2.length}`],[2,`A4:F${r3.length}`]].map(([i,rg])=>`<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">'${S[i][0]}'!${rg.replace(/([A-Z]+)(\d+)/g,'$$$1$$$2')}</definedName>`).join('')+`</definedNames><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`],
+    ['xl/_rels/workbook.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${S.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${S.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+    ['xl/styles.xml',styles], ...S.map(([,x],i)=>[`xl/worksheets/sheet${i+1}.xml`,x])];
+  return zip(files);
+}
+
+function render(){renderList();renderCard()}
+$('list').addEventListener('click',e=>{const b=e.target.closest('.pitem');if(b){cur=b.dataset.id;history.replaceState(null,'','#part='+cur);render()}});
+$('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b){filt=b.dataset.f;renderList()}});
+$('q').addEventListener('input',renderList);
+$('xl').addEventListener('click',()=>save(xlsxRegister(),'Material-Health-Register-'+stampNo()+'.xlsx'));
+$('card').addEventListener('input',e=>{if(e.target.id==='ah'){state[cur].ahead=+e.target.value;paint(true)}});
+$('card').addEventListener('click',e=>{
+  const st=state[cur];
+  if(e.target.dataset.care!==undefined){st.done[e.target.dataset.care]=true;renderList();paint(true)}
+  else if(e.target.id==='mv'){st.moved=!st.moved;render()}
+  // a certificate always describes today, so any look-ahead is cleared first
+  // the certificate always describes today, whatever the look-ahead shows
+  else if(e.target.id==='pdf'){const p=PARTS.find(x=>x.id===cur);save(new Blob([pdfCertificate(p)],{type:'application/pdf'}),'MHC-'+p.id+'-'+stampNo()+'.pdf')}
+});
+function fromHash(){const h=(location.hash.match(/part=(\d+)/)||[])[1]; if(h&&PARTS.some(p=>p.id===h))cur=h; render()}
+addEventListener('hashchange',fromHash);
+fromHash();
+</script>
+</body>
+</html>
